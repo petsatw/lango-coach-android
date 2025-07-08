@@ -1,0 +1,9 @@
+# Gradle files
+.gradle/
+/build/
+
+# Local configuration
+local.properties
+
+# Whatever this is
+java_pid36088.hprof
