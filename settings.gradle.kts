@@ -7,4 +7,4 @@ pluginManagement {
     }
 }
 rootProject.name = "Lango Coach"
-include(":app")
+include(":app", ":core:common", ":core:audio", ":core:data", ":core:domain", ":core:ui", ":feature:coach")
