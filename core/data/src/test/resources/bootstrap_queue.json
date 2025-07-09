@@ -1,0 +1,9 @@
+[
+  {
+    "id": "1",
+    "title": "Test Objective 1",
+    "description": "This is a test objective.",
+    "type": "ECHO",
+    "stage": "INITIAL"
+  }
+]
