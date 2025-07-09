@@ -28,7 +28,7 @@ class CoachViewModel(private val context: Context) : ViewModel() {
 
     private val speechService = AndroidSpeechService(context)
     private val audioPlayer = AudioPlayer()
-    private val remoteDataSource = RemoteDataSource(context)
+    private val remoteDataSource = RemoteDataSource()
 
     fun playLocalTTS(text: String, onTranscriptionResult: (String) -> Unit) {
         viewModelScope.launch {
@@ -41,7 +41,7 @@ class CoachViewModel(private val context: Context) : ViewModel() {
                         Log.d("LangoCoach", "End playback of Android TTS")
                         viewModelScope.launch {
                             Log.d("LangoCoach", "Sending TTS to OpenAI transcription")
-                            val transcript = remoteDataSource.transcribeAudioFile(outFile)
+                            val transcript = remoteDataSource.transcribeAudioFile(outFile, context)
                             Log.d("LangoCoach", "Successful transcription received: $transcript")
                             onTranscriptionResult(transcript)
                         }
@@ -64,7 +64,7 @@ class CoachViewModel(private val context: Context) : ViewModel() {
     fun playOpenAITTS(text: String) {
         viewModelScope.launch {
             Log.d("LangoCoach", "Sending text to OpenAI TTS")
-            val outFile = remoteDataSource.fetchOpenAiTts(text)
+            val outFile = remoteDataSource.fetchOpenAiTts(text, context)
             Log.d("LangoCoach", "OpenAI TTS received")
             audioPlayer.playAudioFile(outFile) {
                 Log.d("LangoCoach", "End playback of OpenAI TTS")

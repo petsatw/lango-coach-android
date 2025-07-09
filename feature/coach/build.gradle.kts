@@ -27,10 +27,7 @@ android {
     }
 }
 
-repositories {
-    google()
-    mavenCentral()
-}
+
 
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
@@ -47,4 +44,6 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:domain"))
     implementation(project(":core:ui"))
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }

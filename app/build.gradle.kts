@@ -3,6 +3,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("org.jetbrains.kotlin.compose")
 }
 
 android {
@@ -52,10 +53,7 @@ android {
     }
 }
 
-repositories {
-    google()
-    mavenCentral()
-}
+
 
 dependencies {
     implementation(project(":feature:coach"))
