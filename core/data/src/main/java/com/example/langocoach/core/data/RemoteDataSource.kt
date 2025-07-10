@@ -4,6 +4,9 @@ import android.content.Context
 import com.example.langocoach.core.data.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -61,6 +64,69 @@ class RemoteDataSource(private val context: Context) {
             val out = File(context.cacheDir, "openai_tts.mp3")
             out.outputStream().use { it.write(resp.body!!.bytes()) }
             out
+        }
+    }
+
+    suspend fun initializeSession(): InitializeResponse = withContext(Dispatchers.IO) {
+        val req = Request.Builder()
+            .url("https://api.openai.com/v1/initialize_session")
+            .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
+            .post("{}".toRequestBody("application/json".toMediaType()))
+            .build()
+        client.newCall(req).execute().use { resp ->
+            val payload = resp.body!!.string()
+            if (!resp.isSuccessful) {
+                throw IOException("Initialize session failed (HTTP ${resp.code}): $payload")
+            }
+            Json.decodeFromString<InitializeResponse>(payload)
+        }
+    }
+
+    suspend fun fetchEchoPrompt(request: EchoRequest): EchoResponse = withContext(Dispatchers.IO) {
+        val jsonBody = Json.encodeToString(EchoRequest.serializer(), request).toRequestBody("application/json".toMediaType())
+        val req = Request.Builder()
+            .url("https://api.openai.com/v1/echo_stage")
+            .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
+            .post(jsonBody)
+            .build()
+        client.newCall(req).execute().use { resp ->
+            val payload = resp.body!!.string()
+            if (!resp.isSuccessful) {
+                throw IOException("Fetch echo prompt failed (HTTP ${resp.code}): $payload")
+            }
+            Json.decodeFromString<EchoResponse>(payload)
+        }
+    }
+
+    suspend fun fetchDialoguePrompt(request: DialogueRequest): DialogueResponse = withContext(Dispatchers.IO) {
+        val jsonBody = Json.encodeToString(DialogueRequest.serializer(), request).toRequestBody("application/json".toMediaType())
+        val req = Request.Builder()
+            .url("https://api.openai.com/v1/dialogue_stage")
+            .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
+            .post(jsonBody)
+            .build()
+        client.newCall(req).execute().use { resp ->
+            val payload = resp.body!!.string()
+            if (!resp.isSuccessful) {
+                throw IOException("Fetch dialogue prompt failed (HTTP ${resp.code}): $payload")
+            }
+            Json.decodeFromString<DialogueResponse>(payload)
+        }
+    }
+
+    suspend fun fetchStoryPrompt(request: StoryRequest): StoryResponse = withContext(Dispatchers.IO) {
+        val jsonBody = Json.encodeToString(StoryRequest.serializer(), request).toRequestBody("application/json".toMediaType())
+        val req = Request.Builder()
+            .url("https://api.openai.com/v1/story_stage")
+            .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
+            .post(jsonBody)
+            .build()
+        client.newCall(req).execute().use { resp ->
+            val payload = resp.body!!.string()
+            if (!resp.isSuccessful) {
+                throw IOException("Fetch story prompt failed (HTTP ${resp.code}): $payload")
+            }
+            Json.decodeFromString<StoryResponse>(payload)
         }
     }
 }
