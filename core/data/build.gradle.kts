@@ -42,4 +42,5 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test:core:1.5.0")
     testImplementation("org.robolectric:robolectric:4.10.3")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
