@@ -26,9 +26,9 @@ class CoachViewModel(private val context: Context) : ViewModel() {
         }
     }
 
-    private val speechService = AndroidSpeechService(context)
-    private val audioPlayer = AudioPlayer()
-    private val remoteDataSource = RemoteDataSource(context)
+    internal var speechService = AndroidSpeechService(context)
+    internal var audioPlayer = AudioPlayer()
+    internal var remoteDataSource = RemoteDataSource(context)
 
     fun playLocalTTS(text: String, onTranscriptionResult: (String) -> Unit) {
         viewModelScope.launch {
