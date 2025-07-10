@@ -8,7 +8,7 @@ import java.util.Locale
 
 class AndroidSpeechService(private val context: Context) : SpeechService {
 
-    private lateinit var tts: TextToSpeech
+    internal lateinit var tts: TextToSpeech
 
     init {
         tts = TextToSpeech(context) { status ->
