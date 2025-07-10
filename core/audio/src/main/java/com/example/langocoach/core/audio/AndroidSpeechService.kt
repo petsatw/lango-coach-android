@@ -5,6 +5,8 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import java.util.Locale
+import android.os.Bundle
+import java.io.File
 
 class AndroidSpeechService(private val context: Context) : SpeechService {
 
@@ -18,9 +20,10 @@ class AndroidSpeechService(private val context: Context) : SpeechService {
         }
     }
 
-    override fun speak(text: String) {
-        Log.d("LangoCoach", "Beginning text to speech on Android")
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "LOCAL_TTS")
+    override fun speak(text: String, outputFile: File) {
+        Log.d("LangoCoach", "Beginning text to speech on Android, saving to ${outputFile.absolutePath}")
+        val params = Bundle()
+        tts.synthesizeToFile(text, params, outputFile, "LOCAL_TTS")
     }
 
     override fun listen(callback: (result: String) -> Unit) {

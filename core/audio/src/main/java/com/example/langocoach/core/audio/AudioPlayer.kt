@@ -5,7 +5,7 @@ import android.media.AudioAttributes
 import java.io.File
 
 class AudioPlayer {
-    private val mediaPlayer = MediaPlayer()
+    internal var mediaPlayer = MediaPlayer()
 
     fun playAudioFile(audioFile: File, onCompletion: () -> Unit) {
         mediaPlayer.reset()

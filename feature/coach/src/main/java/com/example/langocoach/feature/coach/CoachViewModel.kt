@@ -57,7 +57,7 @@ class CoachViewModel(private val context: Context) : ViewModel() {
                     Log.d("LangoCoach", "Android TTS started: $utteranceId")
                 }
             })
-            speechService.speak(text)
+            speechService.speak(text, outFile)
         }
     }
 

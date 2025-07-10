@@ -10,6 +10,9 @@ import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
+import android.os.Bundle
+import java.io.File
+
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -20,18 +23,23 @@ class AndroidSpeechServiceTest {
     private lateinit var tts: TextToSpeech
 
     private lateinit var speechService: AndroidSpeechService
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        context = ApplicationProvider.getApplicationContext<Context>()
         speechService = AndroidSpeechService(context)
         speechService.tts = tts
     }
 
     @Test
     fun testSpeak() {
-        speechService.speak("Hello world")
-        verify(tts).speak("Hello world", TextToSpeech.QUEUE_FLUSH, null, "LOCAL_TTS")
+        val testText = "Hello world"
+        val outputFile = File(context.cacheDir, "test_output.wav")
+        speechService.speak(testText, outputFile as File)
+
+        val expectedParams = Bundle()
+        verify(tts).synthesizeToFile(testText, expectedParams, outputFile, "LOCAL_TTS")
     }
 }
