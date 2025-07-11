@@ -10,6 +10,8 @@ import kotlinx.serialization.decodeFromString
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -17,9 +19,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 
-class RemoteDataSource(private val context: Context) {
-
-    private val client = OkHttpClient()
+class RemoteDataSource(private val context: Context, private val client: OkHttpClient = OkHttpClient(), private val baseUrl: HttpUrl = "https://api.openai.com/".toHttpUrl()) {
 
     suspend fun transcribeAudioFile(audioFile: File): String = withContext(Dispatchers.IO) {
         val body = MultipartBody.Builder().setType(MultipartBody.FORM)
@@ -27,7 +27,7 @@ class RemoteDataSource(private val context: Context) {
             .addFormDataPart("file", audioFile.name, audioFile.asRequestBody("audio/mpeg".toMediaType()))
             .build()
         val req = Request.Builder()
-            .url("https://api.openai.com/v1/audio/transcriptions")
+            .url(baseUrl.newBuilder().addEncodedPathSegments("v1/audio/transcriptions").build())
             .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
             .post(body)
             .build()
@@ -52,7 +52,7 @@ class RemoteDataSource(private val context: Context) {
             .toString()
             .toRequestBody("application/json".toMediaType())
         val req = Request.Builder()
-            .url("https://api.openai.com/v1/audio/speech")
+            .url(baseUrl.newBuilder().addEncodedPathSegments("v1/audio/speech").build())
             .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
             .post(json)
             .build()
@@ -69,7 +69,7 @@ class RemoteDataSource(private val context: Context) {
 
     suspend fun initializeSession(): InitializeResponse = withContext(Dispatchers.IO) {
         val req = Request.Builder()
-            .url("https://api.openai.com/v1/initialize_session")
+            .url(baseUrl.newBuilder().addEncodedPathSegments("v1/initialize_session").build())
             .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
             .post("{}".toRequestBody("application/json".toMediaType()))
             .build()
@@ -85,7 +85,7 @@ class RemoteDataSource(private val context: Context) {
     suspend fun fetchEchoPrompt(request: EchoRequest): EchoResponse = withContext(Dispatchers.IO) {
         val jsonBody = Json.encodeToString(EchoRequest.serializer(), request).toRequestBody("application/json".toMediaType())
         val req = Request.Builder()
-            .url("https://api.openai.com/v1/echo_stage")
+            .url(baseUrl.newBuilder().addEncodedPathSegments("v1/echo_stage").build())
             .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
             .post(jsonBody)
             .build()
@@ -101,7 +101,7 @@ class RemoteDataSource(private val context: Context) {
     suspend fun fetchDialoguePrompt(request: DialogueRequest): DialogueResponse = withContext(Dispatchers.IO) {
         val jsonBody = Json.encodeToString(DialogueRequest.serializer(), request).toRequestBody("application/json".toMediaType())
         val req = Request.Builder()
-            .url("https://api.openai.com/v1/dialogue_stage")
+            .url(baseUrl.newBuilder().addEncodedPathSegments("v1/dialogue_stage").build())
             .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
             .post(jsonBody)
             .build()
@@ -117,7 +117,7 @@ class RemoteDataSource(private val context: Context) {
     suspend fun fetchStoryPrompt(request: StoryRequest): StoryResponse = withContext(Dispatchers.IO) {
         val jsonBody = Json.encodeToString(StoryRequest.serializer(), request).toRequestBody("application/json".toMediaType())
         val req = Request.Builder()
-            .url("https://api.openai.com/v1/story_stage")
+            .url(baseUrl.newBuilder().addEncodedPathSegments("v1/story_stage").build())
             .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
             .post(jsonBody)
             .build()

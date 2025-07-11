@@ -10,7 +10,7 @@ import java.io.File
 
 class AndroidSpeechService(private val context: Context) : SpeechService {
 
-    internal lateinit var tts: TextToSpeech
+    lateinit var tts: TextToSpeech
 
     init {
         tts = TextToSpeech(context) { status ->

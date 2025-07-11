@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
+import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -23,13 +24,15 @@ class RemoteDataSourceTest {
 
     private lateinit var server: MockWebServer
     private lateinit var remoteDataSource: RemoteDataSource
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
         server = MockWebServer()
         server.start()
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        remoteDataSource = RemoteDataSource(context)
+        context = ApplicationProvider.getApplicationContext<Context>()
+
+        remoteDataSource = RemoteDataSource(context, OkHttpClient(), server.url("/"))
     }
 
     @After
@@ -53,13 +56,13 @@ class RemoteDataSourceTest {
     @Test
     fun testFetchOpenAiTts() = runBlocking {
         val response = MockResponse()
-            .setBody("audio data")
+            .setBody(okio.Buffer().write("audio data".toByteArray()))
             .setResponseCode(200)
         server.enqueue(response)
 
         val result = remoteDataSource.fetchOpenAiTts("Hello world")
 
-        assertEquals("audio data", result.readText())
+        assertEquals("audio data", result.readBytes().decodeToString())
     }
 
     @Test
