@@ -1,10 +1,11 @@
 package com.example.langocoach.core.data
 
+import com.example.langocoach.core.data.model.Objective
 import kotlinx.serialization.json.Json
 
-class BootstrapQueueLoader(private val jsonSource: JsonSource) {
+class BootstrapQueueLoader(private val jsonSource: JsonSource) : QueueLoader {
 
-    fun loadBootstrapQueue(): List<Objective> {
+    override fun loadBootstrapQueue(): List<Objective> {
         val json = Json { ignoreUnknownKeys = true }
         val data = jsonSource.openStream().use { it.readBytes() }.decodeToString()
         val sessionData = json.decodeFromString<SessionData>(data)

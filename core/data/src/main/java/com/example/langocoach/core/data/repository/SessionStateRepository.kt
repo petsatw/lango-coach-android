@@ -1,34 +1,32 @@
 package com.example.langocoach.core.data.repository
 
-import android.content.Context
+import com.example.langocoach.core.data.QueueLoader
+import com.example.langocoach.core.data.model.Objective
 import com.example.langocoach.core.data.model.SessionState
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import java.io.FileNotFoundException
+import kotlinx.serialization.json.Json
 
-class SessionStateRepository(private val context: Context) {
+class SessionStateRepository(private val fileStorageManager: FileStorageManager, private val queueLoader: QueueLoader) {
 
     private val FILE_NAME = "session_state.json"
 
     fun saveSessionState(sessionState: SessionState) {
-        context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE).use { outputStream ->
-            outputStream.write(Json.encodeToString(sessionState).toByteArray())
-        }
+        fileStorageManager.saveFile(FILE_NAME, Json.encodeToString(sessionState))
     }
 
     fun loadSessionState(): SessionState? {
-        return try {
-            context.openFileInput(FILE_NAME).use { inputStream ->
-                val jsonString = inputStream.bufferedReader().use { it.readText() }
-                Json.decodeFromString<SessionState>(jsonString)
-            }
-        } catch (e: FileNotFoundException) {
-            null
-        } catch (e: Exception) {
-            // Log the error for debugging, but return null for now
-            e.printStackTrace()
-            null
-        }
+        val jsonString = fileStorageManager.loadFile(FILE_NAME)
+        return jsonString?.let { Json.decodeFromString<SessionState>(it) }
+    }
+
+    fun getOrCreateSessionState(): SessionState {
+        return loadSessionState() ?: createInitialSessionState()
+    }
+
+    private fun createInitialSessionState(): SessionState {
+        val initialNewQueue = queueLoader.loadBootstrapQueue().toMutableList()
+        val initialNewTarget = initialNewQueue.firstOrNull() ?: Objective("", "", "") // Handle empty case, though bootstrap_queue.json should not be empty
+        return SessionState(initialNewQueue, mutableListOf(), initialNewTarget)
     }
 }
