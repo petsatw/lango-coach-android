@@ -5,11 +5,17 @@ import kotlinx.serialization.json.Json
 
 class BootstrapQueueLoader(private val jsonSource: JsonSource) : QueueLoader {
 
+    private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true; explicitNulls = false }
+
     override fun loadBootstrapQueue(): List<Objective> {
-        val json = Json { ignoreUnknownKeys = true }
         val data = jsonSource.openStream().use { it.readBytes() }.decodeToString()
-        val sessionData = json.decodeFromString<SessionData>(data)
-        return sessionData.bootstrap_queue
+        try {
+            val sessionData = json.decodeFromString<SessionData>(data)
+            return sessionData.bootstrap_queue
+        } catch (e: Exception) {
+            println("JsonDecodingException in BootstrapQueueLoader: ${e.message}")
+            throw e // Re-throw the exception so the test still fails
+        }
     }
 }
 

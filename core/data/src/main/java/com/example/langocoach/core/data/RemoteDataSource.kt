@@ -2,6 +2,10 @@ package com.example.langocoach.core.data
 
 import android.content.Context
 import com.example.langocoach.core.data.BuildConfig
+import com.example.langocoach.core.data.model.EchoPromptRequest
+import com.example.langocoach.core.data.model.EchoResponse
+import com.example.langocoach.core.data.model.FailureHookRequest
+import com.example.langocoach.core.data.model.FailureHookResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -82,8 +86,8 @@ class RemoteDataSource(private val context: Context, private val client: OkHttpC
         }
     }
 
-    suspend fun fetchEchoPrompt(request: EchoRequest): EchoResponse = withContext(Dispatchers.IO) {
-        val jsonBody = Json.encodeToString(EchoRequest.serializer(), request).toRequestBody("application/json".toMediaType())
+    suspend fun fetchEchoRequest(request: EchoPromptRequest): EchoResponse = withContext(Dispatchers.IO) {
+        val jsonBody = Json.encodeToString(EchoPromptRequest.serializer(), request).toRequestBody("application/json".toMediaType())
         val req = Request.Builder()
             .url(baseUrl.newBuilder().addEncodedPathSegments("v1/echo_stage").build())
             .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
@@ -127,6 +131,22 @@ class RemoteDataSource(private val context: Context, private val client: OkHttpC
                 throw IOException("Fetch story prompt failed (HTTP ${resp.code}): $payload")
             }
             Json.decodeFromString<StoryResponse>(payload)
+        }
+    }
+
+    suspend fun fetchFailureHook(request: FailureHookRequest): FailureHookResponse = withContext(Dispatchers.IO) {
+        val jsonBody = Json.encodeToString(FailureHookRequest.serializer(), request).toRequestBody("application/json".toMediaType())
+        val req = Request.Builder()
+            .url(baseUrl.newBuilder().addEncodedPathSegments("v1/failure_hook").build())
+            .header("Authorization", "Bearer ${BuildConfig.OPENAI_API_KEY}")
+            .post(jsonBody)
+            .build()
+        client.newCall(req).execute().use { resp ->
+            val payload = resp.body!!.string()
+            if (!resp.isSuccessful) {
+                throw IOException("Fetch failure hook failed (HTTP ${resp.code}): $payload")
+            }
+            Json.decodeFromString<FailureHookResponse>(payload)
         }
     }
 }

@@ -15,6 +15,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import com.example.langocoach.core.data.model.EchoPromptRequest
+import com.example.langocoach.core.data.model.EchoResponse
 import org.robolectric.annotation.Config
 import java.io.File
 
@@ -81,9 +83,9 @@ class RemoteDataSourceTest {
     }
 
     @Test
-    fun testFetchEchoPrompt() = runBlocking {
-        val request = EchoRequest(NewTarget("id1", "text1", 0), 0)
-        val expectedResponse = EchoResponse("Echo prompt text")
+    fun testFetchEchoRequest() = runBlocking {
+        val request = EchoPromptRequest(new_target_text = "text1", usage_count = 0, usage_threshold = 3, failure_count = 0)
+        val expectedResponse = EchoResponse("test")
         val jsonResponse = Json.encodeToString(EchoResponse.serializer(), expectedResponse)
         val response = MockResponse()
             .addHeader("Content-Type", "application/json")
@@ -91,7 +93,7 @@ class RemoteDataSourceTest {
             .setResponseCode(200)
         server.enqueue(response)
 
-        val result = remoteDataSource.fetchEchoPrompt(request)
+        val result = remoteDataSource.fetchEchoRequest(request)
 
         assertEquals(expectedResponse, result)
     }

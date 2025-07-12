@@ -1,4 +1,3 @@
-
 pluginManagement {
     repositories {
         google()
@@ -6,8 +5,8 @@ pluginManagement {
         gradlePluginPortal()
     }
     plugins {
-        id("org.jetbrains.kotlin.plugin.serialization") version "2.0.20"
-            id("org.jetbrains.kotlin.plugin.compose") version "2.0.20"
+        id("org.jetbrains.kotlin.plugin.serialization") version "2.2.0"
+        id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
     }
 }
 rootProject.name = "Lango Coach"
